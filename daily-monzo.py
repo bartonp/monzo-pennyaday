@@ -16,6 +16,7 @@ last_sent_db = session.query(database.Saving.modified).filter(func.strftime('%Y-
 
 if last_sent_db.modified.strftime('%Y-%m-%d') == today:
     session.close()
+    print 'Have already completed the challenge today! Exiting...'
     sys.exit(0)
 
 conf = get_config()
@@ -66,6 +67,7 @@ if test_balance < 0:
             f.write(today)
 
     session.close()
+    print 'Not enough monies. Should have got notification. Exiting...'
     sys.exit(1)
 
 pots_name = 'Penny A Day Challenge'
