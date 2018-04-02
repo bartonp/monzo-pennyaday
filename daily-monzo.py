@@ -67,21 +67,18 @@ if test_balance < 0:
     session.close()
     sys.exit(1)
 
-last_sent_db = session.query(database.Saving.modified).filter(func.strftime('%Y-%m-%d', database.Saving.modified) == today).first()
+pots_name = 'Penny A Day Challenge'
+penny_pot = None
+for pot in pots:
+    if pot.name == pots_name:
+        penny_pot = pot
+        break
 
-if last_sent_db.modified.strftime('%Y-%m-%d') != today:
-    pots_name = 'Penny A Day Challenge'
-    penny_pot = None
-    for pot in pots:
-        if pot.name == pots_name:
-            penny_pot = pot
-            break
-
-    if penny_pot is not None:
-        amount.paid = True
-        penny_pot.deposit(account_id=account_id, amount=amount.amount)
-        print 'Transferred £{:.02f}'.format(amount.amount / 100.0)
-        session.flush()
-        session.commit()
+if penny_pot is not None:
+    amount.paid = True
+    penny_pot.deposit(account_id=account_id, amount=amount.amount)
+    print 'Transferred £{:.02f}'.format(amount.amount / 100.0)
+    session.flush()
+    session.commit()
 
 session.close()
