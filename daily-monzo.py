@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import datetime
 import database
 import pymonzo
+import pymonzo_monkey_patch
 import sys
 import preferences
 import os
