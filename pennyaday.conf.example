@@ -1,0 +1,12 @@
+[settings]
+minimum_amount=500
+steal_from_coin_jar=1
+
+[notification]
+title=Minimum not met for Penny a Day Challenge
+image_url=http://i.imgur.com/6RTnUwK.gif
+body=You need at least £{pence:.02f} to run penny a day
+
+[saving]
+company=bartonp
+app=saving
