@@ -10,6 +10,13 @@ import os
 from sqlalchemy import func
 from config import get_config
 
+session = database.OpenSession()
+today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
+last_sent_db = session.query(database.Saving.modified).filter(func.strftime('%Y-%m-%d', database.Saving.modified) == today).first()
+
+if last_sent_db.modified.strftime('%Y-%m-%d') == today:
+    session.close()
+    sys.exit(0)
 
 conf = get_config()
 
@@ -18,7 +25,6 @@ MINIMUM_BALANCE = conf.getint(section='settings', option='minimum_amount')
 STEAL_FROM_COIN_JAR = conf.getboolean(section='settings', option='steal_from_coin_jar')
 
 client = pymonzo.MonzoAPI()
-session = database.OpenSession()
 
 accounts = [a for a in client.accounts() if a.closed is False]
 account_id = accounts[0].id
@@ -33,7 +39,6 @@ amount = session.query(database.Saving).filter(database.Saving.year == current_y
     .order_by(database.Saving.amount.asc()).limit(1).one()
 
 test_balance = balance - MINIMUM_BALANCE - amount.amount
-today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
 
 if STEAL_FROM_COIN_JAR and test_balance < 0:
     if coin_jar.balance >= abs(test_balance):
@@ -59,6 +64,7 @@ if test_balance < 0:
         with open(last_sent_file, 'w') as f:
             f.write(today)
 
+    session.close()
     sys.exit(1)
 
 last_sent_db = session.query(database.Saving.modified).filter(func.strftime('%Y-%m-%d', database.Saving.modified) == today).first()
