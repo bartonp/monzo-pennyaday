@@ -48,7 +48,8 @@ if STEAL_FROM_COIN_JAR and test_balance < 0:
 
 
 if test_balance < 0:
-    d = preferences.get_config_dir('bartonp', 'saving')
+    d = preferences.get_config_dir(conf.get(section='saving', option='company'),
+                                   conf.get(section='saving', option='app'))
     last_sent_file = os.path.join(d, 'last_sent')
     last_sent = None
     if os.path.isfile(last_sent_file):

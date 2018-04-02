@@ -5,9 +5,12 @@ from sqlalchemy import event
 from datetime import datetime, timedelta
 import preferences
 import os
+from config import get_config
 
 
-p = preferences.get_config_dir('bartonp', 'saving')
+config = get_config()
+p = preferences.get_config_dir(config.get(section='saving', option='company'),
+                               config.get(section='saving', option='app'))
 sqlite_path = os.path.join(p, 'penny_a_day_monzo.sqlite')
 engine = create_engine('sqlite:///{}'.format(sqlite_path))
 
