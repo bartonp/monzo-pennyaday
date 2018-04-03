@@ -20,9 +20,8 @@ if last_sent_db is not None and last_sent_db.modified.strftime('%Y-%m-%d') == to
     print 'Have already completed the challenge today! Exiting...'
     sys.exit(0)
 
-conf = get_config()
-
 # Settings from config file
+conf = get_config()
 MINIMUM_BALANCE = conf.getint(section='settings', option='minimum_amount')
 STEAL_FROM_COIN_JAR = conf.getboolean(section='settings', option='steal_from_coin_jar')
 
@@ -33,7 +32,6 @@ account_id = accounts[0].id
 balance = client.balance(account_id=accounts[0].id).balance
 
 pots = client.pots()
-coin_jar = [p for p in pots if p.name == 'Coin Jar'][0]
 
 current_year = datetime.datetime.now().year
 amount = session.query(database.Saving).filter(database.Saving.year == current_year)\
@@ -43,6 +41,7 @@ amount = session.query(database.Saving).filter(database.Saving.year == current_y
 test_balance = balance - MINIMUM_BALANCE - amount.amount
 
 if STEAL_FROM_COIN_JAR and test_balance < 0:
+    coin_jar = [p for p in pots if p.name == 'Coin Jar'][0]
     if coin_jar.balance >= abs(test_balance):
         coin_jar.withdraw(account_id=account_id, amount=abs(test_balance))
         balance = client.balance(account_id=accounts[0].id).balance
