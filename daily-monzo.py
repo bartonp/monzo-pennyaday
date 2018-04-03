@@ -29,7 +29,7 @@ client = pymonzo.MonzoAPI()
 
 accounts = [a for a in client.accounts() if a.closed is False]
 account_id = accounts[0].id
-balance = client.balance(account_id=accounts[0].id).balance
+balance = client.balance(account_id=account_id).balance
 
 pots = client.pots()
 
@@ -44,7 +44,7 @@ if STEAL_FROM_COIN_JAR and test_balance < 0:
     coin_jar = [p for p in pots if p.name == 'Coin Jar'][0]
     if coin_jar.balance >= abs(test_balance):
         coin_jar.withdraw(account_id=account_id, amount=abs(test_balance))
-        balance = client.balance(account_id=accounts[0].id).balance
+        balance = client.balance(account_id=account_id).balance
         test_balance = balance - MINIMUM_BALANCE - amount.amount
 
 
