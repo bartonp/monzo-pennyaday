@@ -8,14 +8,21 @@ import pymonzo_monkey_patch
 import sys
 import preferences
 import os
-from sqlalchemy import func
 from config import get_config
+import pytz
+
+utc = pytz.utc
+local = pytz.timezone('Europe/London')
 
 session = database.OpenSession()
-today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
-last_sent_db = session.query(database.Saving.modified).filter(func.strftime('%Y-%m-%d', database.Saving.modified) == today).first()
+now = datetime.datetime.now(tz=local).replace(hour=0, minute=0,
+                                              second=0, microsecond=0)
 
-if last_sent_db is not None and last_sent_db.modified.strftime('%Y-%m-%d') == today:
+last_sent_db = session.query(database.Saving.modified)\
+    .filter(database.Saving.modified >= now.astimezone(tz=utc))\
+    .filter(database.Saving.paid == True).first()
+
+if last_sent_db is not None:
     session.close()
     print 'Have already completed the challenge today! Exiting...'
     sys.exit(0)
