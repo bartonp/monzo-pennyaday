@@ -11,12 +11,21 @@ import os
 from config import get_config
 import pytz
 
+
+# Settings from config file
+conf = get_config()
+MINIMUM_BALANCE = conf.getint(section='settings', option='minimum_amount')
+STEAL_FROM_COIN_JAR = conf.getboolean(section='settings', option='steal_from_coin_jar')
+TIMEZONE = conf.get(section='settings', option='timezone')
+LOCAL_TO_MONZO_OFFSET = conf.getint(section='settings', option='offset')
+
 utc = pytz.utc
-local = pytz.timezone('Europe/London')
+local = pytz.timezone(TIMEZONE)
 
 session = database.OpenSession()
-now = datetime.datetime.now(tz=local).replace(hour=0, minute=0,
-                                              second=0, microsecond=0)
+now = datetime.datetime.now(tz=local)
+now = now - datetime.timedelta(minutes=LOCAL_TO_MONZO_OFFSET)
+now = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
 last_sent_db = session.query(database.Saving.modified)\
     .filter(database.Saving.modified >= now.astimezone(tz=utc))\
@@ -26,11 +35,6 @@ if last_sent_db is not None:
     session.close()
     print 'Have already completed the challenge today! Exiting...'
     sys.exit(0)
-
-# Settings from config file
-conf = get_config()
-MINIMUM_BALANCE = conf.getint(section='settings', option='minimum_amount')
-STEAL_FROM_COIN_JAR = conf.getboolean(section='settings', option='steal_from_coin_jar')
 
 client = pymonzo.MonzoAPI()
 
@@ -63,7 +67,7 @@ if test_balance < 0:
     if os.path.isfile(last_sent_file):
         with open(last_sent_file, 'r') as f:
             last_sent = f.read()
-
+    today = now.strftime('%Y-%m-%d')
     if today != last_sent:
         required_amount = MINIMUM_BALANCE + amount.amount
         params = {'title': conf.get(section='notification', option='title'),

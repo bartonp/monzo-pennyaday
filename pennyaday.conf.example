@@ -1,6 +1,8 @@
 [settings]
 minimum_amount=500
 steal_from_coin_jar=1
+timezone=Europe/London
+offset=2
 
 [notification]
 title=Minimum not met for Penny a Day Challenge
